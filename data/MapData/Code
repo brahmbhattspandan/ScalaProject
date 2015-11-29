@@ -1,0 +1,6 @@
+val f1 = sc.wholeTextFiles("Path_to_files")
+val f2 = f1.keys
+val f3 = f2.map(_.drop(51).dropRight(4))
+val f4 =f3.zipWithIndex()
+val f5 = f4.map(i => i._2 + "," + i._1)
+f5.saveAsTextFile("PathToSave")
