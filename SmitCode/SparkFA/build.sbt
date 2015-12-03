@@ -14,4 +14,6 @@ libraryDependencies += "org.apache.commons" % "commons-math3" % "3.5"
 
 libraryDependencies += "org.apache.spark" %% "spark-sql" % "1.5.1"
 
+libraryDependencies += "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test"
+
     
