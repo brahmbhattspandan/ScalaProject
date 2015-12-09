@@ -1,0 +1,2131 @@
+{
+  "paragraphs": [
+    {
+      "text": "//imports\n\nimport java.io.File\nimport java.text.SimpleDateFormat\n\nimport scala.collection.mutable.ArrayBuffer\nimport scala.io.Source\nimport com.github.nscala_time.time.Imports._\n\n//spark related imports\n\nimport org.apache.spark.{SparkConf, SparkContext}\nimport org.apache.spark.SparkContext._\nimport org.apache.spark.rdd.RDD\n\nimport org.apache.spark.mllib.regression.LabeledPoint\nimport org.apache.spark.mllib.linalg.Vectors\nimport org.apache.spark.mllib.stat.{MultivariateStatisticalSummary, Statistics}\nimport org.apache.spark.mllib.feature.{StandardScaler,Normalizer,ChiSqSelector}\nimport org.apache.spark.mllib.evaluation.{MulticlassMetrics, BinaryClassificationMetrics}\nimport org.apache.spark.sql.{Row, SQLContext}\nimport sqlContext.implicits._\nimport org.apache.spark.rdd.PairRDDFunctions\nimport org.apache.spark.mllib.linalg.Matrix\nimport org.apache.spark.mllib.linalg.distributed.RowMatrix\nimport org.apache.spark.mllib.linalg.SingularValueDecomposition\nimport org.apache.spark.rdd.RDD\nimport org.apache.spark.sql.types.StringType\nimport org.apache.spark.sql.{SQLContext, DataFrame}\nimport org.apache.spark.mllib.regression.LabeledPoint\nimport org.apache.spark.mllib.regression.LinearRegressionModel\nimport org.apache.spark.mllib.optimization.{L1Updater,SquaredL2Updater}\nimport org.apache.spark.mllib.regression.{LinearRegressionWithSGD,RidgeRegressionWithSGD,LassoWithSGD}\nimport org.apache.commons.math3.distribution.ChiSquaredDistribution\nimport org.apache.commons.math3.distribution.MultivariateNormalDistribution\nimport org.apache.commons.math3.random.MersenneTwister\nimport org.apache.commons.math3.stat.correlation.Covariance\nimport scala.util",
+      "dateUpdated": "Dec 3, 2015 2:04:03 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "editorHide": false,
+        "editorMode": "ace/mode/scala",
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440043144122_-46045349",
+      "id": "20150820-035904_74190770",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "import java.io.File\nimport java.text.SimpleDateFormat\nimport scala.collection.mutable.ArrayBuffer\nimport scala.io.Source\nimport com.github.nscala_time.time.Imports._\nimport org.apache.spark.{SparkConf, SparkContext}\nimport org.apache.spark.SparkContext._\nimport org.apache.spark.rdd.RDD\nimport org.apache.spark.mllib.regression.LabeledPoint\nimport org.apache.spark.mllib.linalg.Vectors\nimport org.apache.spark.mllib.stat.{MultivariateStatisticalSummary, Statistics}\nimport org.apache.spark.mllib.feature.{StandardScaler, Normalizer, ChiSqSelector}\nimport org.apache.spark.mllib.evaluation.{MulticlassMetrics, BinaryClassificationMetrics}\nimport org.apache.spark.sql.{Row, SQLContext}\nimport sqlContext.implicits._\nimport org.apache.spark.rdd.PairRDDFunctions\nimport org.apache.spark.mllib.linalg.Matrix\nimport org.apache.spark.mllib.linalg.distributed.RowMatrix\nimport org.apache.spark.mllib.linalg.SingularValueDecomposition\nimport org.apache.spark.rdd.RDD\nimport org.apache.spark.sql.types.StringType\nimport org.apache.spark.sql.{SQLContext, DataFrame}\nimport org.apache.spark.mllib.regression.LabeledPoint\nimport org.apache.spark.mllib.regression.LinearRegressionModel\nimport org.apache.spark.mllib.optimization.{L1Updater, SquaredL2Updater}\nimport org.apache.spark.mllib.regression.{LinearRegressionWithSGD, RidgeRegressionWithSGD, LassoWithSGD}\nimport org.apache.commons.math3.distribution.ChiSquaredDistribution\nimport org.apache.commons.math3.distribution.MultivariateNormalDistribution\nimport org.apache.commons.math3.random.MersenneTwister\nimport org.apache.commons.math3.stat.correlation.Covariance\nimport scala.util\n"
+      },
+      "dateCreated": "Sep 20, 2015 3:59:04 AM",
+      "dateStarted": "Dec 3, 2015 2:04:03 AM",
+      "dateFinished": "Dec 3, 2015 2:04:09 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "def toInt(s: String): Option[Int] \u003d {\r\n  try {\r\n    Some(s.toInt)\r\n  } catch {\r\n    case e: Exception \u003d\u003e None\r\n  }\r\n}",
+      "dateUpdated": "Dec 3, 2015 2:06:01 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440243217560_-690739159",
+      "id": "20150822-113337_1377870022",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "toInt: (s: String)Option[Int]\n"
+      },
+      "dateCreated": "Sep 22, 2015 11:33:37 AM",
+      "dateStarted": "Dec 3, 2015 2:06:01 AM",
+      "dateFinished": "Dec 3, 2015 2:06:02 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val financialRiskAnalysisParam \u003d toInt(z.input(\"Financial RiskAnalysis Param in %\").toString)\nval nTrials \u003d toInt(z.input(\"Number Of Trials (Min 100)\").toString)\nval slidingWindow \u003d toInt(z.input(\"Time interval\").toString)",
+      "dateUpdated": "Dec 3, 2015 2:06:04 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {
+          "Financial RiskAnalysis Param in %": "10",
+          "Number Of Trials": "10",
+          "Number Of Trials (Min 100)": "100",
+          "Time interval": "10"
+        },
+        "forms": {
+          "Financial RiskAnalysis Param in %": {
+            "name": "Financial RiskAnalysis Param in %",
+            "displayName": "Financial RiskAnalysis Param in %",
+            "defaultValue": "",
+            "hidden": false
+          },
+          "Number Of Trials (Min 100)": {
+            "name": "Number Of Trials (Min 100)",
+            "displayName": "Number Of Trials (Min 100)",
+            "defaultValue": "",
+            "hidden": false
+          },
+          "Time interval": {
+            "name": "Time interval",
+            "displayName": "Time interval",
+            "defaultValue": "",
+            "hidden": false
+          }
+        }
+      },
+      "jobName": "paragraph_1440239667607_256331214",
+      "id": "20150822-103427_27578328",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "financialRiskAnalysisParam: Option[Int] \u003d Some(10)\nnTrials: Option[Int] \u003d Some(100)\nslidingWindow: Option[Int] \u003d Some(10)\n"
+      },
+      "dateCreated": "Sep 22, 2015 10:34:27 AM",
+      "dateStarted": "Dec 3, 2015 2:06:04 AM",
+      "dateFinished": "Dec 3, 2015 2:06:05 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val algoNAme \u003d z.input(\"Regression Algorithm To be used  (Values : LinearRegressionWithSGD_L0,LinearRegressionWithSGD_L1,LinearRegressionWithSGD_L2,RidgeRegressionWithSGD,LassoWithSGD)\").toString",
+      "dateUpdated": "Dec 3, 2015 2:06:06 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {
+          "Regression Algorithm To be used  (Values : LinearRegressionWithSGD_L0,LinearRegressionWithSGD_L1,LinearRegressionWithSGD_L2,RidgeRegressionWithSGD,LassoWithSGD)": "LinearRegressionWithSGD_L0"
+        },
+        "forms": {
+          "Regression Algorithm To be used  (Values : LinearRegressionWithSGD_L0,LinearRegressionWithSGD_L1,LinearRegressionWithSGD_L2,RidgeRegressionWithSGD,LassoWithSGD)": {
+            "name": "Regression Algorithm To be used  (Values : LinearRegressionWithSGD_L0,LinearRegressionWithSGD_L1,LinearRegressionWithSGD_L2,RidgeRegressionWithSGD,LassoWithSGD)",
+            "displayName": "Regression Algorithm To be used  (Values : LinearRegressionWithSGD_L0,LinearRegressionWithSGD_L1,LinearRegressionWithSGD_L2,RidgeRegressionWithSGD,LassoWithSGD)",
+            "defaultValue": "",
+            "hidden": false
+          }
+        }
+      },
+      "jobName": "paragraph_1440245520994_-171637916",
+      "id": "20150822-121200_1189893064",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "algoNAme: String \u003d LinearRegressionWithSGD_L0\n"
+      },
+      "dateCreated": "Sep 22, 2015 12:12:00 PM",
+      "dateStarted": "Dec 3, 2015 2:06:06 AM",
+      "dateFinished": "Dec 3, 2015 2:06:06 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": " def trimToRegion(history: Array[(String,DateTime, Double)], start: DateTime, end: DateTime)\r\n  : Array[(String,DateTime, Double)] \u003d {\r\n    var trimmed \u003d history.dropWhile(_._2 \u003c start).takeWhile(_._2 \u003c\u003d end)\r\n    if (trimmed.head._2 !\u003d start) {\r\n      trimmed \u003d Array((trimmed.head._1,start, trimmed.head._3)) ++ trimmed\r\n    }\r\n    if (trimmed.last._2 !\u003d end) {\r\n      trimmed \u003d trimmed ++ Array((trimmed.last._1,end, trimmed.last._3))\r\n    }\r\n    trimmed\r\n  }",
+      "dateUpdated": "Dec 3, 2015 2:06:12 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440046151467_-240658250",
+      "id": "20150820-044911_879789817",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "trimToRegion: (history: Array[(String, com.github.nscala_time.time.Imports.DateTime, Double)], start: com.github.nscala_time.time.Imports.DateTime, end: com.github.nscala_time.time.Imports.DateTime)Array[(String, com.github.nscala_time.time.Imports.DateTime, Double)]\n"
+      },
+      "dateCreated": "Sep 20, 2015 4:49:11 AM",
+      "dateStarted": "Dec 3, 2015 2:06:12 AM",
+      "dateFinished": "Dec 3, 2015 2:06:12 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "def fillInHistory(history: Array[(String,DateTime, Double)], start: DateTime, end: DateTime)\r\n  : Array[(String,DateTime, Double)] \u003d {\r\n    var cur \u003d history\r\n    val filled \u003d new ArrayBuffer[(String,DateTime, Double)]()\r\n    var curDate \u003d start\r\n    while (curDate \u003c end) {\r\n      if (cur.tail.nonEmpty \u0026\u0026 cur.tail.head._2 \u003d\u003d curDate) {\r\n        cur \u003d cur.tail\r\n      }\r\n\r\n      filled +\u003d ((cur.head._1,curDate, cur.head._3))\r\n\r\n      curDate +\u003d 1.days\r\n      // Skip weekends\r\n      if (curDate.dayOfWeek().get \u003e 5) curDate +\u003d 2.days\r\n    }\r\n    filled.toArray\r\n  }",
+      "dateUpdated": "Dec 3, 2015 2:06:14 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440084229276_-123933561",
+      "id": "20150820-152349_846390742",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "fillInHistory: (history: Array[(String, com.github.nscala_time.time.Imports.DateTime, Double)], start: com.github.nscala_time.time.Imports.DateTime, end: com.github.nscala_time.time.Imports.DateTime)Array[(String, com.github.nscala_time.time.Imports.DateTime, Double)]\n"
+      },
+      "dateCreated": "Sep 20, 2015 3:23:49 PM",
+      "dateStarted": "Dec 3, 2015 2:06:14 AM",
+      "dateFinished": "Dec 3, 2015 2:06:15 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "/**\r\n   * maps a Stock name to ID \r\n   */\r\n  def readStockNameMap(file: File) \u003d {\r\n    val lines \u003d Source.fromFile(file).getLines().toSeq\r\n    lines.tail.map(line \u003d\u003e {\r\n      val cols \u003d line.split(\u0027,\u0027)\r\n      val value \u003d cols(0).toDouble\r\n      (cols(1), value)\r\n    }).toMap\r\n  }\r\n  \r\n  \r\n  \r\n  /**\r\n   * maps a ID to Stock name  \r\n   */\r\n  def readIdtoStockNameMap(file: File) \u003d {\r\n    val lines \u003d Source.fromFile(file).getLines().toSeq\r\n    lines.tail.map(line \u003d\u003e {\r\n      val cols \u003d line.split(\u0027,\u0027)\r\n      val value \u003d cols(0).toDouble\r\n      (value, cols(1))\r\n    }).toMap\r\n  }",
+      "dateUpdated": "Dec 3, 2015 2:06:17 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "editorHide": false,
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440221273186_-1021588531",
+      "id": "20150822-052753_324133671",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "readStockNameMap: (file: java.io.File)scala.collection.immutable.Map[String,Double]\nreadIdtoStockNameMap: (file: java.io.File)scala.collection.immutable.Map[Double,String]\n"
+      },
+      "dateCreated": "Sep 22, 2015 5:27:53 AM",
+      "dateStarted": "Dec 3, 2015 2:06:17 AM",
+      "dateFinished": "Dec 3, 2015 2:06:17 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val filePrefix \u003d \"/home/hadoop/MonteCarloData/data/StockNamesMap.csv\"\r\nval stockNameMap \u003d readStockNameMap(new File(filePrefix))",
+      "dateUpdated": "Dec 3, 2015 2:06:23 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "editorMode": "ace/mode/scala",
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440221266292_1405807604",
+      "id": "20150822-052746_300445541",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "filePrefix: String \u003d /home/hadoop/MonteCarloData/data/StockNamesMap.csv\nstockNameMap: scala.collection.immutable.Map[String,Double] \u003d Map(COCO -\u003e 2067.0, HSNI -\u003e 1769.0, PTEN -\u003e 1300.0, UEIC -\u003e 1724.0, CSBK -\u003e 2009.0, HEES -\u003e 2079.0, PWOD -\u003e 377.0, VBFC -\u003e 1942.0, ATTU -\u003e 2391.0, AMCN -\u003e 2628.0, ANIP -\u003e 1681.0, BKCC -\u003e 317.0, ENTR -\u003e 990.0, GNCA -\u003e 907.0, RESN -\u003e 2172.0, LABL -\u003e 1230.0, FCTY -\u003e 2027.0, RFIL -\u003e 2403.0, MPEL -\u003e 426.0, PACB -\u003e 2400.0, ADXS -\u003e 1181.0, NVFY -\u003e 719.0, REGI -\u003e 933.0, SIGM -\u003e 1197.0, LOAN -\u003e 1849.0, GTXI -\u003e 2425.0, CPGI -\u003e 790.0, CCIH -\u003e 1976.0, QDEL -\u003e 1830.0, SLRC -\u003e 44.0, OVBC -\u003e 2490.0, VCSH -\u003e 1507.0, FRBK -\u003e 100.0, SALM -\u003e 951.0, LECO -\u003e 1291.0, SGYPU -\u003e 2048.0, KPTI -\u003e 1783.0, ROIQU -\u003e 615.0, WHLRW -\u003e 1887.0, ONCY -\u003e 90.0, KALU -\u003e 339.0, SBBX -\u003e 2267.0, ARTX -\u003e 1177.0, UCTT -\u003e 2691.0, HZNP -\u003e 2333.0, BKSC -\u003e 1657.0, GABC -\u003e ..."
+      },
+      "dateCreated": "Sep 22, 2015 5:27:46 AM",
+      "dateStarted": "Dec 3, 2015 2:06:23 AM",
+      "dateFinished": "Dec 3, 2015 2:06:23 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "  /**\r\n   * Reads a Stock history from each file\r\n   */\r\n  def readStockHistory(file: File): Array[(String ,DateTime, Double)] \u003d {\r\n    val format \u003d new SimpleDateFormat(\"yyyy-MM-dd\")\r\n    val lines \u003d Source.fromFile(file).getLines().toSeq\r\n    val name \u003d file.getName().split(\u0027.\u0027)\r\n    lines.tail.map(line \u003d\u003e {\r\n      val cols \u003d line.split(\u0027,\u0027)\r\n      val date \u003d new DateTime(format.parse(cols(0)))\r\n      val value \u003d cols(1).toDouble\r\n      (name(0) ,date, value)\r\n    }).reverse.toArray\r\n  }",
+      "dateUpdated": "Dec 3, 2015 2:06:25 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440045782009_-1359424329",
+      "id": "20150820-044302_1214027455",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "readStockHistory: (file: java.io.File)Array[(String, com.github.nscala_time.time.Imports.DateTime, Double)]\n"
+      },
+      "dateCreated": "Sep 20, 2015 4:43:02 AM",
+      "dateStarted": "Dec 3, 2015 2:06:25 AM",
+      "dateFinished": "Dec 3, 2015 2:06:25 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "/**\r\n   * Reads a Factor history from each file\r\n   */\r\n  def readFactorHistory(file: File): Array[(DateTime, Double)] \u003d {\r\n    val format \u003d new SimpleDateFormat(\"yyyy-MM-dd\")\r\n    val lines \u003d Source.fromFile(file).getLines().toSeq\r\n    lines.tail.map(line \u003d\u003e {\r\n      val cols \u003d line.split(\u0027,\u0027)\r\n      val date \u003d new DateTime(format.parse(cols(0)))\r\n      val value \u003d cols(1).toDouble\r\n      (date, value)\r\n    }).reverse.toArray\r\n  }",
+      "dateUpdated": "Dec 3, 2015 2:06:27 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440227021627_-2122451260",
+      "id": "20150822-070341_1509994023",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "readFactorHistory: (file: java.io.File)Array[(com.github.nscala_time.time.Imports.DateTime, Double)]\n"
+      },
+      "dateCreated": "Sep 22, 2015 7:03:41 AM",
+      "dateStarted": "Dec 3, 2015 2:06:27 AM",
+      "dateFinished": "Dec 3, 2015 2:06:27 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "/**\r\n   * Reads a all the Stock histories\r\n  */\r\ndef readAllStockHistories(dir: File): Seq[Array[(String ,DateTime, Double)]] \u003d {\r\n    val files \u003d dir.listFiles()\r\n    files.flatMap(file \u003d\u003e {\r\n      try {\r\n        Some(readStockHistory(file))\r\n      } catch {\r\n        case e: Exception \u003d\u003e None\r\n      }\r\n    })\r\n  }",
+      "dateUpdated": "Dec 3, 2015 2:06:32 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440226255290_-1809350499",
+      "id": "20150822-065055_2099771075",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "readAllStockHistories: (dir: java.io.File)Seq[Array[(String, com.github.nscala_time.time.Imports.DateTime, Double)]]\n"
+      },
+      "dateCreated": "Sep 22, 2015 6:50:55 AM",
+      "dateStarted": "Dec 3, 2015 2:06:32 AM",
+      "dateFinished": "Dec 3, 2015 2:06:33 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "   // Declare Time range\r\n    val start \u003d new DateTime(2014, 1, 1, 0, 0)\r\n    val end \u003d new DateTime(2015, 1, 1, 0, 0)\r\n  \r\n  val rawStocks \u003d readAllStockHistories(new File(\"/home/hadoop/MonteCarloData/data/stocks/\")).filter(_.size \u003e\u003d 260*5+10)\r\n \r\n",
+      "dateUpdated": "Dec 3, 2015 2:06:34 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "editorMode": "ace/mode/scala",
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440043162910_-1502304612",
+      "id": "20150820-035922_1249938653",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "start: org.joda.time.DateTime \u003d 2014-01-01T00:00:00.000Z\nend: org.joda.time.DateTime \u003d 2015-01-01T00:00:00.000Z\nrawStocks: Seq[Array[(String, com.github.nscala_time.time.Imports.DateTime, Double)]] \u003d ArraySeq(Array((ACHC,1994-03-04T00:00:00.000Z,6.0), (ACHC,1994-03-07T00:00:00.000Z,5.875), (ACHC,1994-03-08T00:00:00.000Z,6.125), (ACHC,1994-03-09T00:00:00.000Z,6.0), (ACHC,1994-03-10T00:00:00.000Z,6.0), (ACHC,1994-03-11T00:00:00.000Z,6.0), (ACHC,1994-03-14T00:00:00.000Z,6.125), (ACHC,1994-03-15T00:00:00.000Z,6.0), (ACHC,1994-03-16T00:00:00.000Z,6.0), (ACHC,1994-03-17T00:00:00.000Z,6.0), (ACHC,1994-03-18T00:00:00.000Z,6.125), (ACHC,1994-03-21T00:00:00.000Z,6.0625), (ACHC,1994-03-22T00:00:00.000Z,6.0), (ACHC,1994-03-23T00:00:00.000Z,6.0), (ACHC,1994-03-24T00:00:00.000Z,6.125), (ACHC,1994-03-25T00:00:00.000Z,6.25), (ACHC,1994-03-28T00:00:00.000Z,6.0), (ACHC,1994-03-29T00:00:00.000Z,6.0), (ACHC,1994-03-..."
+      },
+      "dateCreated": "Sep 20, 2015 3:59:22 AM",
+      "dateStarted": "Dec 3, 2015 2:06:34 AM",
+      "dateFinished": "Dec 3, 2015 2:06:36 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val rawStocksrdd \u003d sc.parallelize(rawStocks)",
+      "dateUpdated": "Dec 3, 2015 2:06:38 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440043561833_261149550",
+      "id": "20150820-040601_440919592",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "rawStocksrdd: org.apache.spark.rdd.RDD[Array[(String, com.github.nscala_time.time.Imports.DateTime, Double)]] \u003d ParallelCollectionRDD[180] at parallelize at \u003cconsole\u003e:103\n"
+      },
+      "dateCreated": "Sep 20, 2015 4:06:01 AM",
+      "dateStarted": "Dec 3, 2015 2:06:38 AM",
+      "dateFinished": "Dec 3, 2015 2:06:38 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "rawStocks.length",
+      "dateUpdated": "Dec 3, 2015 2:06:39 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440043683036_1286321479",
+      "id": "20150820-040803_1483656492",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "res107: Int \u003d 24\n"
+      },
+      "dateCreated": "Sep 20, 2015 4:08:03 AM",
+      "dateStarted": "Dec 3, 2015 2:06:39 AM",
+      "dateFinished": "Dec 3, 2015 2:06:40 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val stocks \u003d rawStocksrdd.map(trimToRegion(_,start, end)).map(fillInHistory(_,start, end))",
+      "dateUpdated": "Dec 3, 2015 2:06:41 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440045065018_-1016411079",
+      "id": "20150820-043105_2033499515",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "stocks: org.apache.spark.rdd.RDD[Array[(String, com.github.nscala_time.time.Imports.DateTime, Double)]] \u003d MapPartitionsRDD[182] at map at \u003cconsole\u003e:117\n"
+      },
+      "dateCreated": "Sep 20, 2015 4:31:05 AM",
+      "dateStarted": "Dec 3, 2015 2:06:41 AM",
+      "dateFinished": "Dec 3, 2015 2:06:42 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "stocks.count",
+      "dateUpdated": "Dec 3, 2015 2:06:49 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440225621956_-2029513881",
+      "id": "20150822-064021_49214590",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "res110: Long \u003d 24\n"
+      },
+      "dateCreated": "Sep 22, 2015 6:40:21 AM",
+      "dateStarted": "Dec 3, 2015 2:06:49 AM",
+      "dateFinished": "Dec 3, 2015 2:06:51 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "def valueReturns(history: Array[(String,DateTime, Double)]): Array[(String,Double)] \u003d {\r\n    history.sliding(slidingWindow.getOrElse(0)).map { window \u003d\u003e\r\n      val next \u003d window.last._3\r\n      val prev \u003d window.head._3\r\n      (window.head._1,((next - prev) / prev))\r\n    }.toArray\r\n  }",
+      "dateUpdated": "Dec 3, 2015 2:06:52 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440045866428_20760276",
+      "id": "20150820-044426_415069936",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "valueReturns: (history: Array[(String, com.github.nscala_time.time.Imports.DateTime, Double)])Array[(String, Double)]\n"
+      },
+      "dateCreated": "Sep 20, 2015 4:44:26 AM",
+      "dateStarted": "Dec 3, 2015 2:06:52 AM",
+      "dateFinished": "Dec 3, 2015 2:06:53 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val stocksReturns \u003d stocks.map(valueReturns)",
+      "dateUpdated": "Dec 3, 2015 2:06:55 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440083640204_759009325",
+      "id": "20150820-151400_1451910999",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "stocksReturns: org.apache.spark.rdd.RDD[Array[(String, Double)]] \u003d MapPartitionsRDD[183] at map at \u003cconsole\u003e:127\n"
+      },
+      "dateCreated": "Sep 20, 2015 3:14:00 PM",
+      "dateStarted": "Dec 3, 2015 2:06:55 AM",
+      "dateFinished": "Dec 3, 2015 2:06:56 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "stocksReturns.collect",
+      "dateUpdated": "Dec 3, 2015 2:06:57 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440084931849_341795377",
+      "id": "20150820-153531_976213793",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "res114: Array[Array[(String, Double)]] \u003d Array(Array((ACHC,0.09306262887188309), (ACHC,0.10596451154747276), (ACHC,0.12165040408336864), (ACHC,0.09153320158102773), (ACHC,0.0931250208333334), (ACHC,0.10288663917525767), (ACHC,0.06857599562016953), (ACHC,0.07082494827313994), (ACHC,0.014999980769230703), (ACHC,0.010448935758514005), (ACHC,0.004972231689190503), (ACHC,-0.02976875124123047), (ACHC,-0.02248904092835841), (ACHC,-0.046502800714640864), (ACHC,-0.044307401596283304), (ACHC,-0.058890128350320876), (ACHC,-0.08793686418758254), (ACHC,-0.0835543782408938), (ACHC,-0.08042897203314875), (ACHC,-0.05899139979051188), (ACHC,-0.03048655581342807), (ACHC,-0.021641664619971385), (ACHC,-0.010593624037449942), (ACHC,0.00528169024416458), (ACHC,0.03068587984986214), (ACHC,0.05356402856275192)..."
+      },
+      "dateCreated": "Sep 20, 2015 3:35:31 PM",
+      "dateStarted": "Dec 3, 2015 2:06:57 AM",
+      "dateFinished": "Dec 3, 2015 2:06:59 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "\n//Load Factors\nval factorsPrefix \u003d \"/home/hadoop/MonteCarloData/data/factors/\"\nval factors1 \u003d Array(\"NDX.csv\",\"SNP.csv\").\n      map(x \u003d\u003e new File(factorsPrefix + x)).\n      map(readStockHistory)\n      \nval fctors \u003d factors1.\n      map(trimToRegion(_, start, end)).\n      map(fillInHistory(_, start, end))      \n      \n     ",
+      "dateUpdated": "Dec 3, 2015 2:07:00 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "editorMode": "ace/mode/scala",
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440084972086_1857382592",
+      "id": "20150820-153612_507986478",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "factorsPrefix: String \u003d /home/hadoop/MonteCarloData/data/factors/\nfactors1: Array[Array[(String, com.github.nscala_time.time.Imports.DateTime, Double)]] \u003d Array(Array((NDX,2014-01-01T00:00:00.000Z,3592.0), (NDX,2014-01-02T00:00:00.000Z,3575.6), (NDX,2014-01-03T00:00:00.000Z,3564.94), (NDX,2014-01-06T00:00:00.000Z,3539.01), (NDX,2014-01-07T00:00:00.000Z,3539.29), (NDX,2014-01-08T00:00:00.000Z,3558.3), (NDX,2014-01-09T00:00:00.000Z,3576.33), (NDX,2014-01-10T00:00:00.000Z,3565.68), (NDX,2014-01-13T00:00:00.000Z,3559.39), (NDX,2014-01-14T00:00:00.000Z,3526.2), (NDX,2014-01-15T00:00:00.000Z,3593.81), (NDX,2014-01-16T00:00:00.000Z,3605.43), (NDX,2014-01-17T00:00:00.000Z,3597.41), (NDX,2014-01-20T00:00:00.000Z,3591.25), (NDX,2014-01-21T00:00:00.000Z,3611.63), (NDX,2014-01-22T00:00:00.000Z,3623.31), (NDX,2014-01-23T00:00:00.000Z,3612.53), (NDX,2014-01-24T00:0...fctors: Array[Array[(String, com.github.nscala_time.time.Imports.DateTime, Double)]] \u003d Array(Array((NDX,2014-01-01T00:00:00.000Z,3592.0), (NDX,2014-01-02T00:00:00.000Z,3575.6), (NDX,2014-01-03T00:00:00.000Z,3564.94), (NDX,2014-01-06T00:00:00.000Z,3539.01), (NDX,2014-01-07T00:00:00.000Z,3539.29), (NDX,2014-01-08T00:00:00.000Z,3558.3), (NDX,2014-01-09T00:00:00.000Z,3576.33), (NDX,2014-01-10T00:00:00.000Z,3565.68), (NDX,2014-01-13T00:00:00.000Z,3559.39), (NDX,2014-01-14T00:00:00.000Z,3526.2), (NDX,2014-01-15T00:00:00.000Z,3593.81), (NDX,2014-01-16T00:00:00.000Z,3605.43), (NDX,2014-01-17T00:00:00.000Z,3597.41), (NDX,2014-01-20T00:00:00.000Z,3591.25), (NDX,2014-01-21T00:00:00.000Z,3611.63), (NDX,2014-01-22T00:00:00.000Z,3623.31), (NDX,2014-01-23T00:00:00.000Z,3612.53), (NDX,2014-01-24T00:00:..."
+      },
+      "dateCreated": "Sep 20, 2015 3:36:12 PM",
+      "dateStarted": "Dec 3, 2015 2:07:00 AM",
+      "dateFinished": "Dec 3, 2015 2:07:01 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val factors \u003d sc.parallelize(fctors) ",
+      "dateUpdated": "Dec 3, 2015 2:07:07 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440085684553_-531863750",
+      "id": "20150820-154804_1400795508",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "factors: org.apache.spark.rdd.RDD[Array[(String, com.github.nscala_time.time.Imports.DateTime, Double)]] \u003d ParallelCollectionRDD[184] at parallelize at \u003cconsole\u003e:117\n"
+      },
+      "dateCreated": "Sep 20, 2015 3:48:04 PM",
+      "dateStarted": "Dec 3, 2015 2:07:07 AM",
+      "dateFinished": "Dec 3, 2015 2:07:07 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val factorsReturns \u003d factors.map(valueReturns)",
+      "dateUpdated": "Dec 3, 2015 2:07:08 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440085725681_-30707788",
+      "id": "20150820-154845_2039794982",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "factorsReturns: org.apache.spark.rdd.RDD[Array[(String, Double)]] \u003d MapPartitionsRDD[185] at map at \u003cconsole\u003e:127\n"
+      },
+      "dateCreated": "Sep 20, 2015 3:48:45 PM",
+      "dateStarted": "Dec 3, 2015 2:07:08 AM",
+      "dateFinished": "Dec 3, 2015 2:07:09 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val temp1 \u003d factorsReturns.flatMap { arrayElement \u003d\u003e\r\n  arrayElement filter {\r\n    case (x: String, y:Double) \u003d\u003e x \u003d\u003d \"NDX\"\r\n  }\r\n}\r\n\r\n\r\nval temp2 \u003d factorsReturns.flatMap { arrayElement \u003d\u003e\r\n  arrayElement filter {\r\n    case (x: String, y:Double) \u003d\u003e x \u003d\u003d \"SNP\"\r\n  }\r\n}",
+      "dateUpdated": "Dec 3, 2015 2:07:10 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440085758161_160558388",
+      "id": "20150820-154918_960667021",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "temp1: org.apache.spark.rdd.RDD[(String, Double)] \u003d MapPartitionsRDD[186] at flatMap at \u003cconsole\u003e:129\ntemp2: org.apache.spark.rdd.RDD[(String, Double)] \u003d MapPartitionsRDD[187] at flatMap at \u003cconsole\u003e:131\n"
+      },
+      "dateCreated": "Sep 20, 2015 3:49:18 PM",
+      "dateStarted": "Dec 3, 2015 2:07:10 AM",
+      "dateFinished": "Dec 3, 2015 2:07:11 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "    val factor1 \u003d temp1.map(x \u003d\u003e x._2).toArray\n    val factor2 \u003d temp2.map(x \u003d\u003e x._2).toArray\n\n",
+      "dateUpdated": "Dec 3, 2015 2:07:15 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440085786872_2032239193",
+      "id": "20150820-154946_463634023",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "warning: there were 1 deprecation warning(s); re-run with -deprecation for details\nfactor1: Array[Double] \u003d Array(-0.01831848552338535, 0.005092851549390322, 0.011357834914472552, 0.016501790048629315, 0.01468091057811031, 0.01498749402804708, 0.013136371643556388, 0.013139148773866518, 0.010546750988231119, 0.00490613124610067, -0.03044679601870997, -0.03689157742627087, -0.023116631131842036, -0.028647406891750812, -0.02419959962676135, -0.0450361685861822, -0.043041857091844285, -0.036447748496634604, -0.005974319175955996, 0.021294975591136547, 0.03316419096768244, 0.031838941452657005, 0.0325022861680384, 0.0365044279175877, 0.05888507079213787, 0.06130967532918329, 0.058540089964020124, 0.03762282352874375, 0.03507850019249195, 0.0229932154823029, 0.017522765254513056, 0.02501284098007917, 0.00696163027528959, 0.010808214242824521, -0.0031807118580316706, 0.0113...warning: there were 1 deprecation warning(s); re-run with -deprecation for details\nfactor2: Array[Double] \u003d Array(-0.06265419184375444, -0.05340406873694938, -0.032747453925778415, -0.006154584078845596, 0.00610073979620011, 0.06549022222222223, 0.103797370934149, 0.07208283360990761, 0.06512858444637011, 0.05026315789473675, 0.03973945276872969, 0.032418339869281, 0.023222757754541058, 0.019610333644424414, -0.030548459562054684, -0.07049729939629644, -0.05621595947954538, -0.06263148827043594, -0.057253821097469224, -0.06365917053912902, -0.04076982625589412, -0.016517438318432352, -0.026445615923644344, -0.013793938767170501, 0.012077922077922167, 0.01731828893573496, 0.04648087759880326, 0.1281062990033223, 0.13262842434919142, 0.09965675555288386, 0.057820538461538465, 0.11567447060892969, 0.14590020531245984, 0.14962140382394445, 0.11942225793884113, 0.119621488..."
+      },
+      "dateCreated": "Sep 20, 2015 3:49:46 PM",
+      "dateStarted": "Dec 3, 2015 2:07:15 AM",
+      "dateFinished": "Dec 3, 2015 2:07:16 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "temp2.collect",
+      "dateUpdated": "Dec 3, 2015 2:07:19 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440250914229_1926290493",
+      "id": "20150822-134154_1698068349",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "res128: Array[(String, Double)] \u003d Array((SNP,-0.06265419184375444), (SNP,-0.05340406873694938), (SNP,-0.032747453925778415), (SNP,-0.006154584078845596), (SNP,0.00610073979620011), (SNP,0.06549022222222223), (SNP,0.103797370934149), (SNP,0.07208283360990761), (SNP,0.06512858444637011), (SNP,0.05026315789473675), (SNP,0.03973945276872969), (SNP,0.032418339869281), (SNP,0.023222757754541058), (SNP,0.019610333644424414), (SNP,-0.030548459562054684), (SNP,-0.07049729939629644), (SNP,-0.05621595947954538), (SNP,-0.06263148827043594), (SNP,-0.057253821097469224), (SNP,-0.06365917053912902), (SNP,-0.04076982625589412), (SNP,-0.016517438318432352), (SNP,-0.026445615923644344), (SNP,-0.013793938767170501), (SNP,0.012077922077922167), (SNP,0.01731828893573496), (SNP,0.04648087759880326), (SNP,0.1..."
+      },
+      "dateCreated": "Sep 22, 2015 1:41:54 PM",
+      "dateStarted": "Dec 3, 2015 2:07:19 AM",
+      "dateFinished": "Dec 3, 2015 2:07:19 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": " def factorMatrix(histories: Seq[Array[Double]]): Array[Array[Double]] \u003d {\r\n    val mat \u003d new Array[Array[Double]](histories.head.length)\r\n    for (i \u003c- 0 until histories.head.length) {\r\n      mat(i) \u003d histories.map(_(i)).toArray\r\n    }\r\n    mat\r\n  }",
+      "dateUpdated": "Dec 3, 2015 2:07:20 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440099839789_-1659859311",
+      "id": "20150820-194359_865193611",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "factorMatrix: (histories: Seq[Array[Double]])Array[Array[Double]]\n"
+      },
+      "dateCreated": "Sep 20, 2015 7:43:59 PM",
+      "dateStarted": "Dec 3, 2015 2:07:20 AM",
+      "dateFinished": "Dec 3, 2015 2:07:21 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val factorMat \u003d factorMatrix(Seq(factor1,factor2))",
+      "dateUpdated": "Dec 3, 2015 2:07:27 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440086683920_2055024222",
+      "id": "20150820-160443_6603969",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "factorMat: Array[Array[Double]] \u003d Array(Array(-0.01831848552338535, -0.06265419184375444), Array(0.005092851549390322, -0.05340406873694938), Array(0.011357834914472552, -0.032747453925778415), Array(0.016501790048629315, -0.006154584078845596), Array(0.01468091057811031, 0.00610073979620011), Array(0.01498749402804708, 0.06549022222222223), Array(0.013136371643556388, 0.103797370934149), Array(0.013139148773866518, 0.07208283360990761), Array(0.010546750988231119, 0.06512858444637011), Array(0.00490613124610067, 0.05026315789473675), Array(-0.03044679601870997, 0.03973945276872969), Array(-0.03689157742627087, 0.032418339869281), Array(-0.023116631131842036, 0.023222757754541058), Array(-0.028647406891750812, 0.019610333644424414), Array(-0.02419959962676135, -0.030548459562054684), Ar..."
+      },
+      "dateCreated": "Sep 20, 2015 4:04:43 PM",
+      "dateStarted": "Dec 3, 2015 2:07:27 AM",
+      "dateFinished": "Dec 3, 2015 2:07:27 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val factorMatrdd \u003d sc.parallelize(factorMat)",
+      "dateUpdated": "Dec 3, 2015 2:07:29 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440091063599_-806423759",
+      "id": "20150820-171743_1002782030",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "factorMatrdd: org.apache.spark.rdd.RDD[Array[Double]] \u003d ParallelCollectionRDD[190] at parallelize at \u003cconsole\u003e:141\n"
+      },
+      "dateCreated": "Sep 20, 2015 5:17:43 PM",
+      "dateStarted": "Dec 3, 2015 2:07:29 AM",
+      "dateFinished": "Dec 3, 2015 2:07:30 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "def featurize(factorReturns: Array[Double]): Array[Double] \u003d {\r\n    val squaredReturns \u003d factorReturns.map(x \u003d\u003e math.signum(x) * x * x)\r\n    val squareRootedReturns \u003d factorReturns.map(x \u003d\u003e math.signum(x) * math.sqrt(math.abs(x)))\r\n    squaredReturns ++ squareRootedReturns ++ factorReturns\r\n  }",
+      "dateUpdated": "Dec 3, 2015 2:07:31 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440099930827_1371682898",
+      "id": "20150820-194530_873521251",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "featurize: (factorReturns: Array[Double])Array[Double]\n"
+      },
+      "dateCreated": "Sep 20, 2015 7:45:30 PM",
+      "dateStarted": "Dec 3, 2015 2:07:31 AM",
+      "dateFinished": "Dec 3, 2015 2:07:32 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val factorFeatures \u003d factorMatrdd.map(featurize)",
+      "dateUpdated": "Dec 3, 2015 2:07:34 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440109876614_1645913327",
+      "id": "20150820-223116_928044311",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "factorFeatures: org.apache.spark.rdd.RDD[Array[Double]] \u003d MapPartitionsRDD[191] at map at \u003cconsole\u003e:145\n"
+      },
+      "dateCreated": "Sep 20, 2015 10:31:16 PM",
+      "dateStarted": "Dec 3, 2015 2:07:34 AM",
+      "dateFinished": "Dec 3, 2015 2:07:35 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "factorFeatures.collect",
+      "dateUpdated": "Dec 3, 2015 2:07:36 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440109899803_-79069234",
+      "id": "20150820-223139_457356523",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "res135: Array[Array[Double]] \u003d Array(Array(-3.355669118704787E-4, -0.0039255477555939855, -0.13534579979957026, -0.25030819372076984, -0.01831848552338535, -0.06265419184375444), Array(2.5937136904127404E-5, -0.0028519945576608143, 0.07136421757008425, -0.23109320357152302, 0.005092851549390322, -0.05340406873694938), Array(1.2900041394441173E-4, -0.0010723957386209802, 0.1065731434953129, -0.18096257603653418, 0.011357834914472552, -0.032747453925778415), Array(2.723090748090415E-4, -3.7878905183579695E-5, 0.12845929335252204, -0.07845115728174822, 0.016501790048629315, -0.006154584078845596), Array(2.155291354024712E-4, 3.721902606093976E-5, 0.12116480750659538, 0.07810723267534263, 0.01468091057811031, 0.00610073979620011), Array(2.246249772407469E-4, 0.00428896920671605, 0.122423421..."
+      },
+      "dateCreated": "Sep 20, 2015 10:31:39 PM",
+      "dateStarted": "Dec 3, 2015 2:07:37 AM",
+      "dateFinished": "Dec 3, 2015 2:07:38 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "factorFeatures.count",
+      "dateUpdated": "Dec 3, 2015 2:07:39 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440111821606_-538300722",
+      "id": "20150820-230341_1591366852",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "res137: Long \u003d 252\n"
+      },
+      "dateCreated": "Sep 20, 2015 11:03:41 PM",
+      "dateStarted": "Dec 3, 2015 2:07:39 AM",
+      "dateFinished": "Dec 3, 2015 2:07:40 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "var test \u003d 0",
+      "dateUpdated": "Dec 3, 2015 2:07:41 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440201457808_1172120976",
+      "id": "20150821-235737_831989940",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "test: Int \u003d 0\n"
+      },
+      "dateCreated": "Sep 21, 2015 11:57:37 PM",
+      "dateStarted": "Dec 3, 2015 2:07:41 AM",
+      "dateFinished": "Dec 3, 2015 2:07:42 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": " def dataMatrix(histories: Array[(String, Double)]): Array[Double] \u003d {\r\n    val mat \u003d new Array[Double](histories.length)\r\n    //test \u003d test + 1\r\n   //val fileID \u003d test\r\n    var i \u003d 0\r\n    for(y \u003c- histories){\r\n        if (i \u003c histories.length){\r\n            mat(i) \u003d y._2.toDouble\r\n            i\u003d (i + 1)\r\n        }\r\n     }\r\n    mat:+stockNameMap.get(histories(0)._1).get\r\n  }",
+      "dateUpdated": "Dec 3, 2015 2:07:43 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440111522256_-1251870370",
+      "id": "20150820-225842_110046558",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "dataMatrix: (histories: Array[(String, Double)])Array[Double]\n"
+      },
+      "dateCreated": "Sep 20, 2015 10:58:42 PM",
+      "dateStarted": "Dec 3, 2015 2:07:43 AM",
+      "dateFinished": "Dec 3, 2015 2:07:44 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": " def dataModel(instrument: Array[Double], factorMatrix: Array[Array[Double]])\u003d {\r\n     val mat \u003d new Array[Array[Double]](instrument.length-1)\r\n   for (i \u003c- 0 until instrument.length-1 ) {\r\n        if (i \u003c instrument.length-1){\r\n            mat(i) \u003d factorMatrix(i):+instrument(i):+instrument(instrument.length-1)\r\n        }\r\n       \r\n    }\r\n    mat\r\n  }",
+      "dateUpdated": "Dec 3, 2015 2:07:49 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440121398284_-1769659861",
+      "id": "20150821-014318_881963151",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "dataModel: (instrument: Array[Double], factorMatrix: Array[Array[Double]])Array[Array[Double]]\n"
+      },
+      "dateCreated": "Sep 21, 2015 1:43:18 AM",
+      "dateStarted": "Dec 3, 2015 2:07:49 AM",
+      "dateFinished": "Dec 3, 2015 2:07:50 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val temp \u003d stocksReturns.toArray",
+      "dateUpdated": "Dec 3, 2015 2:07:52 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440170792057_269326851",
+      "id": "20150821-152632_343573542",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "warning: there were 1 deprecation warning(s); re-run with -deprecation for details\ntemp: Array[Array[(String, Double)]] \u003d Array(Array((ACHC,0.09306262887188309), (ACHC,0.10596451154747276), (ACHC,0.12165040408336864), (ACHC,0.09153320158102773), (ACHC,0.0931250208333334), (ACHC,0.10288663917525767), (ACHC,0.06857599562016953), (ACHC,0.07082494827313994), (ACHC,0.014999980769230703), (ACHC,0.010448935758514005), (ACHC,0.004972231689190503), (ACHC,-0.02976875124123047), (ACHC,-0.02248904092835841), (ACHC,-0.046502800714640864), (ACHC,-0.044307401596283304), (ACHC,-0.058890128350320876), (ACHC,-0.08793686418758254), (ACHC,-0.0835543782408938), (ACHC,-0.08042897203314875), (ACHC,-0.05899139979051188), (ACHC,-0.03048655581342807), (ACHC,-0.021641664619971385), (ACHC,-0.010593624037449942), (ACHC,0.00528169024416458), (ACHC,0.03068587984986214), (ACHC,0.05356402856275192), ..."
+      },
+      "dateCreated": "Sep 21, 2015 3:26:32 PM",
+      "dateStarted": "Dec 3, 2015 2:07:52 AM",
+      "dateFinished": "Dec 3, 2015 2:07:53 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val labels \u003d temp.map(dataMatrix)",
+      "dateUpdated": "Dec 3, 2015 2:07:55 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440133832296_2000548364",
+      "id": "20150821-051032_1178671656",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "labels: Array[Array[Double]] \u003d Array(Array(0.09306262887188309, 0.10596451154747276, 0.12165040408336864, 0.09153320158102773, 0.0931250208333334, 0.10288663917525767, 0.06857599562016953, 0.07082494827313994, 0.014999980769230703, 0.010448935758514005, 0.004972231689190503, -0.02976875124123047, -0.02248904092835841, -0.046502800714640864, -0.044307401596283304, -0.058890128350320876, -0.08793686418758254, -0.0835543782408938, -0.08042897203314875, -0.05899139979051188, -0.03048655581342807, -0.021641664619971385, -0.010593624037449942, 0.00528169024416458, 0.03068587984986214, 0.05356402856275192, 0.1060574965072875, 0.03394423157017904, 0.05601617682474876, 0.014714754793091147, 0.014149043443603097, 0.012121171717171704, -0.011870013852306292, -0.008561938286864001, -0.0383261446680..."
+      },
+      "dateCreated": "Sep 21, 2015 5:10:32 AM",
+      "dateStarted": "Dec 3, 2015 2:07:55 AM",
+      "dateFinished": "Dec 3, 2015 2:07:55 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val tblah \u003d labels.length\n\nvar rnd \u003d new scala.util.Random",
+      "dateUpdated": "Dec 3, 2015 2:07:57 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440137898801_62357952",
+      "id": "20150821-061818_1193990324",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "tblah: Int \u003d 24\nrnd: scala.util.Random \u003d scala.util.Random@7f90fbfa\n"
+      },
+      "dateCreated": "Sep 21, 2015 6:18:18 AM",
+      "dateStarted": "Dec 3, 2015 2:07:57 AM",
+      "dateFinished": "Dec 3, 2015 2:07:57 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val temp \u003d labels.map(x \u003d\u003e dataModel(x,factorFeatures.toArray))",
+      "dateUpdated": "Dec 3, 2015 2:08:04 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440133852575_-54364863",
+      "id": "20150821-051052_1095240223",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "warning: there were 1 deprecation warning(s); re-run with -deprecation for details\ntemp: Array[Array[Array[Double]]] \u003d Array(Array(Array(-3.355669118704787E-4, -0.0039255477555939855, -0.13534579979957026, -0.25030819372076984, -0.01831848552338535, -0.06265419184375444, 0.09306262887188309, 2147.0), Array(2.5937136904127404E-5, -0.0028519945576608143, 0.07136421757008425, -0.23109320357152302, 0.005092851549390322, -0.05340406873694938, 0.10596451154747276, 2147.0), Array(1.2900041394441173E-4, -0.0010723957386209802, 0.1065731434953129, -0.18096257603653418, 0.011357834914472552, -0.032747453925778415, 0.12165040408336864, 2147.0), Array(2.723090748090415E-4, -3.7878905183579695E-5, 0.12845929335252204, -0.07845115728174822, 0.016501790048629315, -0.006154584078845596, 0.09153320158102773, 2147.0), Array(2.155291354024712E-4, 3.721902606093976E-5, 0.1211648075065953..."
+      },
+      "dateCreated": "Sep 21, 2015 5:10:52 AM",
+      "dateStarted": "Dec 3, 2015 2:08:04 AM",
+      "dateFinished": "Dec 3, 2015 2:08:06 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val t \u003d temp.length",
+      "dateUpdated": "Dec 3, 2015 2:08:09 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440134506651_-1155601582",
+      "id": "20150821-052146_1325958521",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "t: Int \u003d 24\n"
+      },
+      "dateCreated": "Sep 21, 2015 5:21:46 AM",
+      "dateStarted": "Dec 3, 2015 2:08:09 AM",
+      "dateFinished": "Dec 3, 2015 2:08:09 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "def computefactorWeights(dataset:Array[Array[Double]])\u003d {\r\n    \r\n   \r\n    val stockID \u003d dataset(0)(dataset(0).length-1)\r\n    \r\n     val data2 \u003d dataset.map{ line \u003d\u003e\r\n    LabeledPoint(line(line.length-2), Vectors.dense(line.dropRight(2)))\r\n    }\r\n    \r\n    val data2RDD \u003d sc.parallelize(data2)\r\n  \r\n            // ALGORITHMS \r\n             \r\n            \r\n            if (algoNAme \u003d\u003d \"LinearRegressionWithSGD_L0\"){\r\n                \r\n            \t// LR default L0\r\n                var lrAlg \u003d new LinearRegressionWithSGD()\r\n                  lrAlg.optimizer.setNumIterations(100).setStepSize(0.001)\t\r\n                  lrAlg.setIntercept(true)\r\n                  \r\n                  \r\n                   val model \u003d lrAlg.run(data2RDD)\r\n            \r\n                     var factorWeights \u003d new Array[Double](model.weights.toArray.length)\r\n            \r\n                     var i \u003d 0\r\n             for (wts \u003c- model.weights.toArray){\r\n                  \r\n                if (i \u003c model.weights.toArray.length){\r\n                    factorWeights(i) \u003d wts\r\n                    i \u003d i + 1\r\n              //     println(wts)\r\n               //    println(\"#######################\")\r\n                }\r\n                \r\n                \r\n            }\r\n        \r\n            println(model.intercept)\r\n        \r\n            factorWeights \u003d factorWeights:+model.intercept\r\n  \r\n            factorWeights:+stockID\r\n            \r\n            }\r\n            if (algoNAme \u003d\u003d \"LinearRegressionWithSGD_L1\"){\r\n                \r\n            \t// LR default L1\r\n           var  lrAlg \u003d new LinearRegressionWithSGD()\r\n                lrAlg.optimizer.setNumIterations(100).setUpdater(new L1Updater).setStepSize(0.001)\t\r\n                lrAlg.setIntercept(true)\r\n                \r\n                 val model \u003d lrAlg.run(data2RDD)\r\n            \r\n            var factorWeights \u003d new Array[Double](model.weights.toArray.length)\r\n            \r\n            var i \u003d 0\r\n            for (wts \u003c- model.weights.toArray){\r\n                \r\n                if (i \u003c model.weights.toArray.length){\r\n                    factorWeights(i) \u003d wts\r\n                    i \u003d i + 1\r\n                    //println(wts)\r\n                    //println(\"#######################\")\r\n                }\r\n                \r\n                \r\n            }\r\n        \r\n            factorWeights \u003d factorWeights:+model.intercept\r\n            \r\n       \r\n            \r\n            factorWeights:+stockID\r\n            }  \r\n            \r\n            if (algoNAme \u003d\u003d \"LinearRegressionWithSGD_L2\"){\r\n                \t// LR default L2\r\n\t        var lrAlg \u003d new LinearRegressionWithSGD()\r\n\t            lrAlg.optimizer.setNumIterations(100).setUpdater(new SquaredL2Updater).setStepSize(0.001)\t\r\n            \tlrAlg.setIntercept(true)\r\n            \t\r\n            \t val model \u003d lrAlg.run(data2RDD)\r\n            \r\n            var factorWeights \u003d new Array[Double](model.weights.toArray.length)\r\n            \r\n            var i \u003d 0\r\n            for (wts \u003c- model.weights.toArray){\r\n                \r\n                if (i \u003c model.weights.toArray.length){\r\n                    factorWeights(i) \u003d wts\r\n                    i \u003d i + 1\r\n                    //println(wts)\r\n                    //println(\"#######################\")\r\n                }\r\n                \r\n                \r\n            }\r\n        \r\n            factorWeights \u003d factorWeights:+model.intercept\r\n            \r\n       \r\n            \r\n            factorWeights:+stockID\r\n            }  \r\n            \r\n            \r\n            if (algoNAme \u003d\u003d \"RidgeRegressionWithSGD\"){\r\n               // RidgeRegressionWithSGD default L2\r\n            var lrAlg \u003d new RidgeRegressionWithSGD()\r\n                lrAlg.optimizer.setNumIterations(100).setStepSize(0.001)\t\r\n                lrAlg.setIntercept(true) \r\n                 val model \u003d lrAlg.run(data2RDD)\r\n            \r\n            var factorWeights \u003d new Array[Double](model.weights.toArray.length)\r\n            \r\n            var i \u003d 0\r\n            for (wts \u003c- model.weights.toArray){\r\n                \r\n                if (i \u003c model.weights.toArray.length){\r\n                    factorWeights(i) \u003d wts\r\n                    i \u003d i + 1\r\n                    //println(wts)\r\n                    //println(\"#######################\")\r\n                }\r\n                \r\n                \r\n            }\r\n        \r\n            factorWeights \u003d factorWeights:+model.intercept\r\n            \r\n       \r\n            \r\n            factorWeights:+stockID\r\n            }\r\n            \r\n            \r\n            if (algoNAme \u003d\u003d \"LassoWithSGD\"){\r\n                // LR default L2\r\n           var  lrAlg \u003d new LassoWithSGD()\r\n\t            lrAlg.optimizer.setNumIterations(100).setStepSize(0.001)\t\r\n            \tlrAlg.setIntercept(true)   \r\n            \t\r\n            \t val model \u003d lrAlg.run(data2RDD)\r\n            \r\n            var factorWeights \u003d new Array[Double](model.weights.toArray.length)\r\n            \r\n            var i \u003d 0\r\n            for (wts \u003c- model.weights.toArray){\r\n                \r\n                if (i \u003c model.weights.toArray.length){\r\n                    factorWeights(i) \u003d wts\r\n                    i \u003d i + 1\r\n                    //println(wts)\r\n                    //println(\"#######################\")\r\n                }\r\n                \r\n                \r\n            }\r\n        \r\n            factorWeights \u003d factorWeights:+model.intercept\r\n            \r\n       \r\n            \r\n            factorWeights:+stockID\r\n            }else{\r\n                \r\n            }\r\n            \t\r\n     \r\n           \r\n        \r\n  }",
+      "dateUpdated": "Dec 3, 2015 2:08:11 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440264027251_-223130198",
+      "id": "20150822-172027_1895586158",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "computefactorWeights: (dataset: Array[Array[Double]])Any\n"
+      },
+      "dateCreated": "Sep 22, 2015 5:20:27 PM",
+      "dateStarted": "Dec 3, 2015 2:08:11 AM",
+      "dateFinished": "Dec 3, 2015 2:08:11 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "def LinearRegressionWithSGD_L0(dataset:Array[Array[Double]])\u003d {\r\n    \r\n   \r\n    val stockID \u003d dataset(0)(dataset(0).length-1)\r\n    \r\n     val data2 \u003d dataset.map{ line \u003d\u003e\r\n    LabeledPoint(line(line.length-2), Vectors.dense(line.dropRight(2)))\r\n    }\r\n    \r\n    val data2RDD \u003d sc.parallelize(data2)\r\n  \r\n            \r\n                \r\n            \t// LR default L0\r\n                var lrAlg \u003d new LinearRegressionWithSGD()\r\n                  lrAlg.optimizer.setNumIterations(100).setStepSize(0.001)\t\r\n                  lrAlg.setIntercept(true)\r\n                  \r\n                  \r\n                   val model \u003d lrAlg.run(data2RDD)\r\n            \r\n                     var factorWeights \u003d new Array[Double](model.weights.toArray.length)\r\n            \r\n                     var i \u003d 0\r\n             for (wts \u003c- model.weights.toArray){\r\n                  \r\n                if (i \u003c model.weights.toArray.length){\r\n                    factorWeights(i) \u003d wts\r\n                    i \u003d i + 1\r\n              //     println(wts)\r\n               //    println(\"#######################\")\r\n                }\r\n                \r\n                \r\n            }\r\n        \r\n           // println(model.intercept)\r\n        \r\n            factorWeights \u003d factorWeights:+model.intercept\r\n  \r\n            factorWeights:+stockID\r\n          \r\n           \r\n        \r\n  }",
+      "dateUpdated": "Dec 3, 2015 2:08:23 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440167752389_1100452350",
+      "id": "20150821-143552_526227336",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "LinearRegressionWithSGD_L0: (dataset: Array[Array[Double]])Array[Double]\n"
+      },
+      "dateCreated": "Sep 21, 2015 2:35:52 PM",
+      "dateStarted": "Dec 3, 2015 2:08:23 AM",
+      "dateFinished": "Dec 3, 2015 2:08:23 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "\nval factorWts \u003d  temp.map(LinearRegressionWithSGD_L0)\n",
+      "dateUpdated": "Dec 3, 2015 2:08:27 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440168144376_883785645",
+      "id": "20150821-144224_1307961280",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "factorWts: Array[Array[Double]] \u003d Array(Array(-9.050260735063475E-5, -2.6021805144477394E-7, -1.3364023641818492E-4, -1.5151680376569437E-5, -8.385697663823406E-5, -3.733602211114782E-6, 0.9983119973833005, 2147.0), Array(-9.102502893984935E-5, -2.513456127261264E-7, -1.3915531470281594E-4, -1.7508579334480053E-5, -8.521285248127082E-5, -4.065441867998604E-6, 0.998296593510732, 2657.0), Array(-8.978581652975356E-5, -2.9182671279631894E-7, -1.3482357294351317E-4, -1.5389432196562855E-5, -8.365238458074817E-5, -3.841899947008278E-6, 0.9983179933628908, 2640.0), Array(-9.269537673525224E-5, -2.026508326482247E-7, -1.398026393690253E-4, -1.3571318441151485E-5, -8.657518180890721E-5, -3.196801854486946E-6, 0.9982964500767119, 522.0), Array(-8.858311946965935E-5, -2.449577554960189E-7, -1.282..."
+      },
+      "dateCreated": "Sep 21, 2015 2:42:24 PM",
+      "dateStarted": "Dec 3, 2015 2:08:27 AM",
+      "dateFinished": "Dec 3, 2015 2:08:33 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": " // Covariance Calcultaion\n\nval factorCov \u003d new Covariance(factorMat).getCovarianceMatrix().getData()",
+      "dateUpdated": "Dec 3, 2015 2:09:03 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440170396491_-1326025979",
+      "id": "20150821-151956_604912837",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "factorCov: Array[Array[Double]] \u003d Array(Array(0.05235588538345552, 7.915731779265132E-4), Array(7.915731779265132E-4, 0.002268929945311398))\n"
+      },
+      "dateCreated": "Sep 21, 2015 3:19:56 PM",
+      "dateStarted": "Dec 3, 2015 2:08:52 AM",
+      "dateFinished": "Dec 3, 2015 2:08:53 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val factorMeans \u003d Seq(factor1,factor2).map(factor \u003d\u003e factor.sum /factor.size).toArray",
+      "dateUpdated": "Dec 3, 2015 2:09:09 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440171312551_-416926745",
+      "id": "20150821-153512_190090102",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "factorMeans: Array[Double] \u003d Array(0.05094181349715096, 0.002553309232295316)\n"
+      },
+      "dateCreated": "Sep 21, 2015 3:35:12 PM",
+      "dateStarted": "Dec 3, 2015 2:09:07 AM",
+      "dateFinished": "Dec 3, 2015 2:09:07 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "//factorFeatures\n\n\nval broadCastFactorWts \u003d sc.broadcast(factorWts)\n\nval numTrials \u003d nTrials.getOrElse(0)\nval parallelism \u003d numTrials / 10\nval baseSeed \u003d 1001L\n    \n    \n// Generate different seeds so that our simulations don\u0027t all end up with the same results\nval seeds \u003d (baseSeed until baseSeed + parallelism)\nval seedRdd \u003d sc.parallelize(seeds, parallelism)\n\n\n",
+      "dateUpdated": "Dec 3, 2015 2:09:25 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440171482959_997223032",
+      "id": "20150821-153802_633054003",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "broadCastFactorWts: org.apache.spark.broadcast.Broadcast[Array[Array[Double]]] \u003d Broadcast(352)\nnumTrials: Int \u003d 100\nparallelism: Int \u003d 10\nbaseSeed: Long \u003d 1001\nseeds: scala.collection.immutable.NumericRange.Exclusive[Long] \u003d NumericRange(1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010)\nseedRdd: org.apache.spark.rdd.RDD[Long] \u003d ParallelCollectionRDD[360] at parallelize at \u003cconsole\u003e:111\n"
+      },
+      "dateCreated": "Sep 21, 2015 3:38:02 PM",
+      "dateStarted": "Dec 3, 2015 2:09:20 AM",
+      "dateFinished": "Dec 3, 2015 2:09:21 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "// create an empty map\r\nvar stocksTrialsReturns \u003d scala.collection.mutable.Map[String, Double]()",
+      "dateUpdated": "Dec 3, 2015 2:09:33 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440189866531_9634279",
+      "id": "20150821-204426_440649632",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "stocksTrialsReturns: scala.collection.mutable.Map[String,Double] \u003d Map()\n"
+      },
+      "dateCreated": "Sep 21, 2015 8:44:26 PM",
+      "dateStarted": "Dec 3, 2015 2:09:31 AM",
+      "dateFinished": "Dec 3, 2015 2:09:31 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "/**\r\n   * Calculate the return of a particular instrument under particular trial conditions.\r\n   */\r\n  def instrumentTrialReturn(instrument: Array[Double], trial: Array[Double]): Double \u003d {\r\n    var instrumentTrialReturn \u003d instrument(0)\r\n    var i \u003d 0\r\n    while (i \u003c trial.length) {\r\n      instrumentTrialReturn +\u003d trial(i) * instrument(i+1)\r\n      i +\u003d 1\r\n    }\r\n    instrumentTrialReturn\r\n  }\r\n   \r\n  /**\r\n   * Calculate the full return of the portfolio under particular trial conditions.\r\n   */\r\n  def trialReturn(trial: Array[Double], instruments: Seq[Array[Double]]) \u003d {\r\n    var totalReturn \u003d 0.0\r\n   // var totalR \u003d new Array[(Double,Array[(Double,Double)])] (1)\r\n    val individualTrialReturns \u003d new Array[(Double,Double)](instruments.length)\r\n    var i \u003d 0\r\n    for (instrument \u003c- instruments) {\r\n     val instrumentReturn \u003d instrumentTrialReturn(instrument.dropRight(1), trial)\r\n      totalReturn \u003d totalReturn + instrumentReturn \r\n     if (i \u003c instruments.length ){\r\n         individualTrialReturns(i) \u003d (instrument(instrument.length-1),instrumentReturn)\r\n         i\u003d i+1\r\n     }\r\n     \r\n    }\r\n    ((totalReturn / instruments.size),individualTrialReturns)\r\n    \r\n  }",
+      "dateUpdated": "Dec 3, 2015 2:09:37 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440178535674_588218801",
+      "id": "20150821-173535_1783534099",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "instrumentTrialReturn: (instrument: Array[Double], trial: Array[Double])Double\ntrialReturn: (trial: Array[Double], instruments: Seq[Array[Double]])(Double, Array[(Double, Double)])\n"
+      },
+      "dateCreated": "Sep 21, 2015 5:35:35 PM",
+      "dateStarted": "Dec 3, 2015 2:09:35 AM",
+      "dateFinished": "Dec 3, 2015 2:09:36 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "  def trialReturns(\r\n      seed: Long,\r\n      numTrials: Int,\r\n      instruments: Seq[Array[Double]],\r\n      factorMeans: Array[Double],\r\n      factorCovariances: Array[Array[Double]]): Array[(Double, Array[(Double, Double)])] \u003d {\r\n    val rand \u003d new MersenneTwister(seed)\r\n    val multivariateNormal \u003d new MultivariateNormalDistribution(rand, factorMeans,\r\n      factorCovariances)\r\n    \r\n    val trialReturns \u003d new Array[(Double,Array[(Double,Double)])](numTrials)\r\n    \r\n    for (i \u003c- 0 until numTrials) {\r\n       \r\n      val trialFactorReturns \u003d multivariateNormal.sample()\r\n      val trialFeatures \u003d featurize(trialFactorReturns)\r\n      trialReturns(i) \u003d trialReturn(trialFeatures, instruments)\r\n    }\r\n    \r\n    trialReturns\r\n\r\n  }",
+      "dateUpdated": "Dec 3, 2015 2:09:47 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440179579485_35039062",
+      "id": "20150821-175259_102226368",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "trialReturns: (seed: Long, numTrials: Int, instruments: Seq[Array[Double]], factorMeans: Array[Double], factorCovariances: Array[Array[Double]])Array[(Double, Array[(Double, Double)])]\n"
+      },
+      "dateCreated": "Sep 21, 2015 5:52:59 PM",
+      "dateStarted": "Dec 3, 2015 2:09:44 AM",
+      "dateFinished": "Dec 3, 2015 2:09:44 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val trialsrdd \u003d seedRdd.flatMap(\r\n      trialReturns(_, numTrials / parallelism, broadCastFactorWts.value, factorMeans, factorCov))",
+      "dateUpdated": "Dec 3, 2015 2:09:54 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440191220599_-1176987692",
+      "id": "20150821-210700_1704403609",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "trialsrdd: org.apache.spark.rdd.RDD[(Double, Array[(Double, Double)])] \u003d MapPartitionsRDD[361] at flatMap at \u003cconsole\u003e:202\n"
+      },
+      "dateCreated": "Sep 21, 2015 9:07:00 PM",
+      "dateStarted": "Dec 3, 2015 2:09:50 AM",
+      "dateFinished": "Dec 3, 2015 2:09:51 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val trials \u003d trialsrdd.map(line \u003d\u003e line._1)",
+      "dateUpdated": "Dec 3, 2015 2:10:00 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440193628048_-1206381327",
+      "id": "20150821-214708_918300162",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "trials: org.apache.spark.rdd.RDD[Double] \u003d MapPartitionsRDD[362] at map at \u003cconsole\u003e:204\n"
+      },
+      "dateCreated": "Sep 21, 2015 9:47:08 PM",
+      "dateStarted": "Dec 3, 2015 2:09:58 AM",
+      "dateFinished": "Dec 3, 2015 2:09:58 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "trials.collect",
+      "dateUpdated": "Dec 3, 2015 2:10:12 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440239013168_1200205633",
+      "id": "20150822-102333_52761462",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "res173: Array[Double] \u003d Array(0.08646333736802224, -0.015619501146979064, 0.030731862952424804, -0.07572881660878503, 0.06541156649079605, 0.07129551398534835, 0.07002941962512439, 0.0019448487370418242, 0.06161931866297626, 0.017799845896056495, 0.013864858540758888, -0.05821773194628376, 0.04869453184023553, 0.007975708594633093, 0.063516207593489, 0.05635862592878788, -0.079508640890704, 0.02850932611111986, 0.011308849159116912, 0.04607649072610381, 0.07370368208400008, 0.004358534509960085, -0.00798628406082524, -0.02932706624251887, 0.06365953806901864, 0.010903265761273729, 0.0233011112862451, -0.00847863710935269, 0.01923934484870098, -0.016054287377666444, -0.0923244875710005, 0.039857904237932396, 0.007867855009785955, 0.04150429149845249, -0.04839083337547238, -0.074183764101..."
+      },
+      "dateCreated": "Sep 22, 2015 10:23:33 AM",
+      "dateStarted": "Dec 3, 2015 2:10:04 AM",
+      "dateFinished": "Dec 3, 2015 2:10:09 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val stockreturns \u003d trialsrdd.map(line \u003d\u003e line._2)",
+      "dateUpdated": "Dec 3, 2015 2:10:18 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440194011308_-49134377",
+      "id": "20150821-215331_1864498194",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "stockreturns: org.apache.spark.rdd.RDD[Array[(Double, Double)]] \u003d MapPartitionsRDD[363] at map at \u003cconsole\u003e:204\n"
+      },
+      "dateCreated": "Sep 21, 2015 9:53:31 PM",
+      "dateStarted": "Dec 3, 2015 2:10:15 AM",
+      "dateFinished": "Dec 3, 2015 2:10:16 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "var j \u003d scala.collection.mutable.Map[Double, Double]()\nval xyz \u003d stockreturns.collect.flatten\nxyz",
+      "dateUpdated": "Dec 3, 2015 2:10:31 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440204757755_1767386579",
+      "id": "20150822-005237_399742516",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "j: scala.collection.mutable.Map[Double,Double] \u003d Map()\nxyz: Array[(Double, Double)] \u003d Array((2147.0,0.08646434957000318), (2657.0,0.08646109648602966), (2640.0,0.08646552980499449), (522.0,0.086460648746767), (135.0,0.0864670067768776), (1569.0,0.08646488279753693), (2112.0,0.086470542893144), (211.0,0.0864689628637539), (2174.0,0.08644894443850558), (2483.0,0.08646144589775118), (837.0,0.08646115314146889), (1655.0,0.08646314685332651), (608.0,0.08646400878818827), (1872.0,0.08645846606795539), (2173.0,0.08646005854385942), (913.0,0.08648595644496815), (86.0,0.0864684475302368), (1490.0,0.08646113733738496), (2529.0,0.08645322205708104), (768.0,0.08645863772960023), (1889.0,0.08646223692414867), (595.0,0.08645868674523681), (867.0,0.08646314795133886), (2431.0,0.08646838044237598), (2147.0,-0.015619988099992953), (2657.0,-0.015619638403596...res176: Array[(Double, Double)] \u003d Array((2147.0,0.08646434957000318), (2657.0,0.08646109648602966), (2640.0,0.08646552980499449), (522.0,0.086460648746767), (135.0,0.0864670067768776), (1569.0,0.08646488279753693), (2112.0,0.086470542893144), (211.0,0.0864689628637539), (2174.0,0.08644894443850558), (2483.0,0.08646144589775118), (837.0,0.08646115314146889), (1655.0,0.08646314685332651), (608.0,0.08646400878818827), (1872.0,0.08645846606795539), (2173.0,0.08646005854385942), (913.0,0.08648595644496815), (86.0,0.0864684475302368), (1490.0,0.08646113733738496), (2529.0,0.08645322205708104), (768.0,0.08645863772960023), (1889.0,0.08646223692414867), (595.0,0.08645868674523681), (867.0,0.08646314795133886), (2431.0,0.08646838044237598), (2147.0,-0.015619988099992953), (2657.0,-0.015619638403..."
+      },
+      "dateCreated": "Sep 22, 2015 12:52:37 AM",
+      "dateStarted": "Dec 3, 2015 2:10:26 AM",
+      "dateFinished": "Dec 3, 2015 2:10:29 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val stocksSummations \u003d xyz.foreach(i \u003d\u003e if(j.get(i._1) \u003d\u003d None){\n                                    j+\u003d (i._1-\u003ei._2)}\n                                    else {\n                                        j+\u003d (i._1 -\u003e (j.get(i._1).get+ i._2))\n                                    })",
+      "dateUpdated": "Dec 3, 2015 2:11:05 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440171881193_-1499613439",
+      "id": "20150821-154441_1738393070",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "stocksSummations: Unit \u003d ()\n"
+      },
+      "dateCreated": "Sep 21, 2015 3:44:41 PM",
+      "dateStarted": "Dec 3, 2015 2:10:44 AM",
+      "dateFinished": "Dec 3, 2015 2:10:44 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "j",
+      "dateUpdated": "Dec 3, 2015 2:11:04 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440206048205_-61274037",
+      "id": "20150822-011408_1761969156",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "res179: scala.collection.mutable.Map[Double,Double] \u003d Map(2640.0 -\u003e 0.9449500319130159, 837.0 -\u003e 0.9448505929916265, 2147.0 -\u003e 0.9448749762630765, 768.0 -\u003e 0.9447484143135445, 86.0 -\u003e 0.9450729353684225, 2529.0 -\u003e 0.9445495394847536, 1569.0 -\u003e 0.9450371414633856, 2173.0 -\u003e 0.9447014437905514, 1889.0 -\u003e 0.945139925433581, 211.0 -\u003e 0.9454220018967481, 2657.0 -\u003e 0.9447755109897958, 522.0 -\u003e 0.9446486756179336, 1655.0 -\u003e 0.9450194644680934, 608.0 -\u003e 0.9451485727545554, 913.0 -\u003e 0.945275736800438, 2483.0 -\u003e 0.9447173879099651, 1490.0 -\u003e 0.9447549382807273, 2112.0 -\u003e 0.9451996269532424, 135.0 -\u003e 0.9450685055178885, 2174.0 -\u003e 0.9440238600791886, 595.0 -\u003e 0.9446671783209061, 867.0 -\u003e 0.9449140981974162, 1872.0 -\u003e 0.9445915872058218, 2431.0 -\u003e 0.9452504489069311)\n"
+      },
+      "dateCreated": "Sep 22, 2015 1:14:08 AM",
+      "dateStarted": "Dec 3, 2015 2:10:48 AM",
+      "dateFinished": "Dec 3, 2015 2:10:49 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "def PercentVaR(trials: RDD[Double]): Double \u003d {\r\n    val percentParam \u003d 100 / financialRiskAnalysisParam.getOrElse(0)\r\n    \r\n    val topLosses \u003d trials.takeOrdered(math.max(trials.count().toInt / percentParam, 1))\r\n    topLosses.last\r\n  }\r\n\r\n  def PercentES(trials: RDD[Double]): Double \u003d {\r\n     val percentParam \u003d 100 / financialRiskAnalysisParam.getOrElse(0)\r\n    val topLosses \u003d trials.takeOrdered(math.max(trials.count().toInt / percentParam, 1))\r\n    topLosses.sum / topLosses.length\r\n  }\r\n\r\n  def confidenceInterval(\r\n      trials: RDD[Double],\r\n      computeStatistic: RDD[Double] \u003d\u003e Double,\r\n      numResamples: Int,\r\n      pValue: Double): (Double, Double) \u003d {\r\n    val stats \u003d (0 until numResamples).map { i \u003d\u003e\r\n      val resample \u003d trials.sample(true, 1.0)\r\n      computeStatistic(resample)\r\n    }.sorted\r\n    val lowerIndex \u003d (numResamples * pValue / 2 - 1).toInt\r\n    val upperIndex \u003d math.ceil(numResamples * (1 - pValue / 2)).toInt\r\n    (stats(lowerIndex), stats(upperIndex))\r\n  }\r\n\r\n  def countFailures(stocksReturns: Seq[Array[Double]], valueAtRisk: Double): Int \u003d {\r\n    var failures \u003d 0\r\n    for (i \u003c- 0 until stocksReturns(0).size) {\r\n      val loss \u003d stocksReturns.map(_(i)).sum\r\n      if (loss \u003c valueAtRisk) {\r\n        failures +\u003d 1\r\n      }\r\n    }\r\n    failures\r\n  }",
+      "dateUpdated": "Dec 3, 2015 2:11:15 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440171897557_-303197602",
+      "id": "20150821-154457_1801684409",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "PercentVaR: (trials: org.apache.spark.rdd.RDD[Double])Double\nPercentES: (trials: org.apache.spark.rdd.RDD[Double])Double\nconfidenceInterval: (trials: org.apache.spark.rdd.RDD[Double], computeStatistic: org.apache.spark.rdd.RDD[Double] \u003d\u003e Double, numResamples: Int, pValue: Double)(Double, Double)\ncountFailures: (stocksReturns: Seq[Array[Double]], valueAtRisk: Double)Int\n"
+      },
+      "dateCreated": "Sep 21, 2015 3:44:57 PM",
+      "dateStarted": "Dec 3, 2015 2:11:11 AM",
+      "dateFinished": "Dec 3, 2015 2:11:13 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val valueAtRisk \u003d PercentVaR(trials)\r\n    val ExpectedShortFall \u003d PercentES(trials)\r\n    println(\"VaR : \" + valueAtRisk)\r\n    println(\"ES : \" + ExpectedShortFall)",
+      "dateUpdated": "Dec 3, 2015 2:11:39 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440172061733_-1808325432",
+      "id": "20150821-154741_122015317",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "valueAtRisk: Double \u003d -0.05608387968940973\nExpectedShortFall: Double \u003d -0.07202625951765126\nVaR : -0.05608387968940973\nES : -0.07202625951765126\n"
+      },
+      "dateCreated": "Sep 21, 2015 3:47:41 PM",
+      "dateStarted": "Dec 3, 2015 2:11:22 AM",
+      "dateFinished": "Dec 3, 2015 2:11:29 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "// maybe you want to write it out as csv\r\nval csvResults \u003d j map { case (key, value) \u003d\u003e Array(key, value).mkString(\",\\t\") }\r\n",
+      "dateUpdated": "Dec 3, 2015 2:11:53 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440235811374_-1962615263",
+      "id": "20150822-093011_1350888424",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "csvResults: scala.collection.mutable.Iterable[String] \u003d ArrayBuffer(2640.0,\t0.9449500319130159, 837.0,\t0.9448505929916265, 2147.0,\t0.9448749762630765, 768.0,\t0.9447484143135445, 86.0,\t0.9450729353684225, 2529.0,\t0.9445495394847536, 1569.0,\t0.9450371414633856, 2173.0,\t0.9447014437905514, 1889.0,\t0.945139925433581, 211.0,\t0.9454220018967481, 2657.0,\t0.9447755109897958, 522.0,\t0.9446486756179336, 1655.0,\t0.9450194644680934, 608.0,\t0.9451485727545554, 913.0,\t0.945275736800438, 2483.0,\t0.9447173879099651, 1490.0,\t0.9447549382807273, 2112.0,\t0.9451996269532424, 135.0,\t0.9450685055178885, 2174.0,\t0.9440238600791886, 595.0,\t0.9446671783209061, 867.0,\t0.9449140981974162, 1872.0,\t0.9445915872058218, 2431.0,\t0.9452504489069311)\n"
+      },
+      "dateCreated": "Sep 22, 2015 9:30:11 AM",
+      "dateStarted": "Dec 3, 2015 2:11:46 AM",
+      "dateFinished": "Dec 3, 2015 2:11:46 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val filePrefix \u003d \"/home/hadoop/MonteCarloData/data/StockNamesMap.csv\"\r\nval idTostockNameMap \u003d readIdtoStockNameMap(new File(filePrefix))",
+      "dateUpdated": "Dec 3, 2015 2:12:30 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "editorMode": "ace/mode/scala",
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440233886135_2031122648",
+      "id": "20150822-085806_211896335",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "filePrefix: String \u003d /home/hadoop/MonteCarloData/data/StockNamesMap.csv\nidTostockNameMap: scala.collection.immutable.Map[Double,String] \u003d Map(2163.0 -\u003e CARA, 645.0 -\u003e HNH, 892.0 -\u003e TAPR, 69.0 -\u003e INFI, 2199.0 -\u003e SBCF, 1322.0 -\u003e ATRO, 1665.0 -\u003e IDCC, 1036.0 -\u003e ENG, 2822.0 -\u003e POPE, 2630.0 -\u003e INFA, 1586.0 -\u003e SAFT, 1501.0 -\u003e MEIL, 2452.0 -\u003e NERV, 809.0 -\u003e ADEP, 1879.0 -\u003e GBSN, 1337.0 -\u003e TXN, 1718.0 -\u003e EMMSP, 2094.0 -\u003e CSII, 1411.0 -\u003e TREE, 629.0 -\u003e WBB, 2612.0 -\u003e LTRPA, 1024.0 -\u003e AZPN, 1469.0 -\u003e DAEG, 365.0 -\u003e VRTB, 2744.0 -\u003e SPAN, 1369.0 -\u003e DRTX, 138.0 -\u003e NATR, 1823.0 -\u003e ADRD, 1190.0 -\u003e PSBH, 1168.0 -\u003e LSBK, 2295.0 -\u003e CTXS, 2306.0 -\u003e RAIL, 760.0 -\u003e MYL, 2341.0 -\u003e SRNE, 101.0 -\u003e WILC, 2336.0 -\u003e GPIC, 2109.0 -\u003e CLSN, 2131.0 -\u003e DRYS, 1454.0 -\u003e CGEN, 2031.0 -\u003e BRID, 1633.0 -\u003e MBUU, 2778.0 -\u003e TSC, 2072.0 -\u003e SENEA, 1767.0 -\u003e SFST, 1995.0 -\u003e SQI, 2263.0 -\u003e ESBK, 479.0..."
+      },
+      "dateCreated": "Sep 22, 2015 8:58:06 AM",
+      "dateStarted": "Dec 3, 2015 2:12:27 AM",
+      "dateFinished": "Dec 3, 2015 2:12:28 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "  def countFailures(stocksReturns: Seq[Array[Double]], valueAtRisk: Double): Int \u003d {\r\n    var failures \u003d 0\r\n    for (i \u003c- 0 until stocksReturns(0).size) {\r\n      val loss \u003d stocksReturns.map(_(i)).sum\r\n      if (loss \u003c valueAtRisk) {\r\n        failures +\u003d 1\r\n      }\r\n    }\r\n    failures\r\n  }\r\n\r\n  def kupiecTestStatistic(total: Int, failures: Int, confidenceLevel: Double): Double \u003d {\r\n    val failureRatio \u003d failures.toDouble / total\r\n    val logNumer \u003d (total - failures) * math.log1p(-confidenceLevel) +\r\n      failures * math.log(confidenceLevel)\r\n    val logDenom \u003d (total - failures) * math.log1p(-failureRatio) +\r\n      failures * math.log(failureRatio)\r\n    -2 * (logNumer - logDenom)\r\n  }\r\n\r\n  def BackTestPValue(\r\n      stocksReturns: Seq[Array[Double]],\r\n      valueAtRisk: Double,\r\n      confidenceLevel: Double): Double \u003d {\r\n    val failures \u003d countFailures(stocksReturns, valueAtRisk)\r\n    val total \u003d stocksReturns(0).size\r\n    val testStatistic \u003d kupiecTestStatistic(total, failures, confidenceLevel)\r\n    1 - new ChiSquaredDistribution(1.0).cumulativeProbability(testStatistic)\r\n  }",
+      "dateUpdated": "Dec 3, 2015 2:12:53 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440239971298_-636641979",
+      "id": "20150822-103931_1911704670",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "countFailures: (stocksReturns: Seq[Array[Double]], valueAtRisk: Double)Int\nkupiecTestStatistic: (total: Int, failures: Int, confidenceLevel: Double)Double\nBackTestPValue: (stocksReturns: Seq[Array[Double]], valueAtRisk: Double, confidenceLevel: Double)Double\n"
+      },
+      "dateCreated": "Sep 22, 2015 10:39:31 AM",
+      "dateStarted": "Dec 3, 2015 2:12:48 AM",
+      "dateFinished": "Dec 3, 2015 2:12:48 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val varConfidenceInterval \u003d confidenceInterval(trials, PercentVaR, 100, .05)\r\n    val esConfidenceInterval \u003d confidenceInterval(trials, PercentES, 100, .05)\r\n    println(\"VaR confidence interval: \" + varConfidenceInterval)\r\n    println(\"ES confidence interval: \" + esConfidenceInterval)\r\n    println(\"Kupiec test p-value: \" + BackTestPValue(labels.toSeq, valueAtRisk, 0.05))",
+      "dateUpdated": "Dec 3, 2015 2:13:05 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440253046827_-808854977",
+      "id": "20150822-141726_1979680978",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "varConfidenceInterval: (Double, Double) \u003d (-0.07572881660878503,-0.04336320354744708)\nesConfidenceInterval: (Double, Double) \u003d (-0.0847133614892896,-0.057184971088199754)\nVaR confidence interval: (-0.07572881660878503,-0.04336320354744708)\nES confidence interval: (-0.0847133614892896,-0.057184971088199754)\nKupiec test p-value: 0.0\n"
+      },
+      "dateCreated": "Sep 22, 2015 2:17:26 PM",
+      "dateStarted": "Dec 3, 2015 2:13:05 AM",
+      "dateFinished": "Dec 3, 2015 2:21:58 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "dateUpdated": "Sep 22, 2015 2:37:12 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1440253355801_813891646",
+      "id": "20150822-142235_125647763",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT"
+      },
+      "dateCreated": "Sep 22, 2015 2:22:35 PM",
+      "dateStarted": "Sep 22, 2015 2:39:29 PM",
+      "dateFinished": "Sep 22, 2015 2:49:20 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "Note ZJYGS6WXW",
+  "id": "2AXV35H5P",
+  "angularObjects": {
+    "2AJXGMUUJ": [],
+    "2AK8P7CPX": [],
+    "2AM1YV5CU": [],
+    "2AKK3QQXU": [],
+    "2ANGGHHMQ": []
+  },
+  "config": {},
+  "info": {}
+}
